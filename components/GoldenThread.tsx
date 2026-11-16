@@ -16,17 +16,18 @@ import { useReducedMotion } from "framer-motion";
  * (put the attribute on a wrapper, not on something that slides in).
  *
  * HOW IT DRAWS
- * The path is normalised to length 1 (pathLength) and GSAP ScrollTrigger scrubs
- * stroke-dashoffset from START_DRAWN → 0 across the whole page scroll.
+ * The path is normalised to length 1 (pathLength). Desktop uses GSAP ScrollTrigger;
+ * mobile updates the stroke from native scroll progress after the hero.
  */
 type ScrollTriggerApi = typeof import("gsap/ScrollTrigger").ScrollTrigger;
 
 const GUTTER = 20; // px between content edge and a left/right waypoint
 const EDGE = 14; // keep the thread inside the viewport
+const MOBILE_EDGE = 10; // hero/content starts at 24px, leaving a clear outer lane
 const START_DRAWN = 0.04; // portion visible before any scrolling
 
 type Point = { x: number; y: number };
-type Layout = { d: string; width: number; height: number };
+type Layout = { d: string; width: number; height: number; mobile: boolean };
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
@@ -44,6 +45,19 @@ function toPath(points: Point[]): string {
 
 function measure(root: HTMLElement): Layout | null {
   const box = root.getBoundingClientRect();
+  const mobile = window.matchMedia("(max-width: 767px)").matches;
+  if (mobile) {
+    const hero = root.querySelector<HTMLElement>("#top");
+    if (!hero) return null;
+    const startY = hero.getBoundingClientRect().bottom - box.top;
+    return {
+      // On phones the line stays in the page gutter, clear of text and cards.
+      d: `M ${MOBILE_EDGE} ${startY.toFixed(1)} L ${MOBILE_EDGE} ${box.height.toFixed(1)}`,
+      width: box.width,
+      height: box.height,
+      mobile,
+    };
+  }
   const points = Array.from(root.querySelectorAll<HTMLElement>("[data-thread]"))
     .map((el) => {
       const r = el.getBoundingClientRect();
@@ -64,6 +78,7 @@ function measure(root: HTMLElement): Layout | null {
     d: toPath([{ x: points[0].x, y: 0 }, ...points]),
     width: box.width,
     height: box.height,
+    mobile,
   };
 }
 
@@ -106,10 +121,44 @@ export function GoldenThread() {
   //    GSAP is loaded on demand so it never competes with first paint.
   const trigger = useRef<ScrollTriggerApi | null>(null);
   const ready = layout !== null;
+  const mobile = layout?.mobile ?? false;
+  const height = layout?.height;
+  // Native scroll on touch devices: draw only the portion the guest has reached.
   useEffect(() => {
     const path = pathRef.current;
     const root = svgRef.current?.parentElement;
-    if (!ready || !path || !root || reduce) return;
+    const hero = root?.querySelector<HTMLElement>("#top");
+    if (!ready || !mobile || !path || !root || !hero || reduce) return;
+
+    let frame = 0;
+    const draw = () => {
+      frame = 0;
+      const heroBottom = hero.getBoundingClientRect().bottom + window.scrollY;
+      const rootBottom = root.getBoundingClientRect().bottom + window.scrollY;
+      const start = heroBottom - window.innerHeight;
+      const end = rootBottom - window.innerHeight;
+      const progress = clamp((window.scrollY - start) / Math.max(1, end - start), 0, 1);
+      path.style.strokeDashoffset = String(1 - progress);
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(draw);
+    };
+    draw();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, [ready, mobile, reduce, height]);
+
+  // Desktop keeps the original waypoint curve and GSAP scrub.
+  useEffect(() => {
+    const path = pathRef.current;
+    const root = svgRef.current?.parentElement;
+    const hero = root?.querySelector<HTMLElement>("#top");
+    if (!ready || mobile || !path || !root || !hero || reduce) return;
 
     let cancelled = false;
     let revert = () => {};
@@ -138,7 +187,7 @@ export function GoldenThread() {
       cancelled = true;
       revert();
     };
-  }, [ready, reduce]);
+  }, [ready, reduce, mobile]);
 
   // Waypoints moved (resize, fonts, images): let ScrollTrigger recalculate its range.
   useEffect(() => {
@@ -165,7 +214,7 @@ export function GoldenThread() {
           strokeLinecap="round"
           pathLength={1}
           strokeDasharray={1}
-          strokeDashoffset={reduce ? 0 : 1 - START_DRAWN}
+          strokeDashoffset={reduce ? 0 : layout.mobile ? 1 : 1 - START_DRAWN}
         />
       )}
     </svg>
