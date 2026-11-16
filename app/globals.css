@@ -32,6 +32,14 @@
   html[data-loader="pending"] {
     overflow: hidden;
   }
+  .loader-root {
+    /* Safari's browser bars change the visible viewport after first paint. */
+    height: 100vh;
+    height: 100dvh;
+  }
+  .loader-skip {
+    bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+  }
   html[data-loader="done"] .loader-root {
     display: none;
   }

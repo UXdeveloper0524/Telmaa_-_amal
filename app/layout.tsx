@@ -59,6 +59,7 @@ export const viewport: Viewport = {
   themeColor: wedding.colors.paper,
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
 };
 
 /** Start the intro on every load; release the page even if hydration or animation stalls. */

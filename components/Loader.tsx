@@ -123,7 +123,7 @@ export function Loader() {
 
   return (
     <div
-      className="loader-root fixed inset-0 z-[100] text-paper"
+      className="loader-root fixed left-0 top-0 z-[100] w-full text-paper"
       role="status"
       aria-live="polite"
       aria-label={wedding.loader.label}
@@ -198,7 +198,7 @@ export function Loader() {
         <button
           type="button"
           onClick={exit}
-          className="label absolute bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 text-paper/70 underline decoration-gold underline-offset-8 transition-colors hover:text-paper focus-visible:outline-paper"
+          className="label loader-skip absolute left-1/2 -translate-x-1/2 px-4 py-2 text-paper/70 underline decoration-gold underline-offset-8 transition-colors hover:text-paper focus-visible:outline-paper"
         >
           {wedding.loader.skip}
         </button>
