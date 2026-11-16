@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 294 294">
+  <title>Amal and Telma</title>
+  <rect width="294" height="294" rx="64" fill="#1F2A24"/>
+  <path
+    d="M118 150 L78 20 L38 150 L51 108 L108 108 C148 108 168 128 158 144 C148 158 124 152 134 130 C146 106 172 80 172 40 C172 29 166 24 156 24 L256 24 L206 24 L206 150"
+    transform="translate(0 58)"
+    fill="none"
+    stroke="#D8BC87"
+    stroke-width="10"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
