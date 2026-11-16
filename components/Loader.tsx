@@ -123,7 +123,7 @@ export function Loader() {
 
   return (
     <div
-      className="loader-root fixed left-0 top-0 z-[100] w-full text-paper"
+      className="loader-root fixed left-0 top-0 bottom-0 right-0 z-[100] w-full text-paper"
       role="status"
       aria-live="polite"
       aria-label={wedding.loader.label}
