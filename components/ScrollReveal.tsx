@@ -40,7 +40,7 @@ export function ScrollLine({
   );
 }
 
-/** Section transition: content is uncovered with a clip-path wipe (top → bottom), not a plain fade. */
+/** Section transition: a short rise and fade that stays smooth in mobile Safari. */
 export function ClipIn({
   children,
   delay = 0,
@@ -54,10 +54,10 @@ export function ClipIn({
   return (
     <m.div
       className={`clip-in ${className}`}
-      initial={reduce ? false : { clipPath: "inset(0 0 100% 0)" }}
-      whileInView={{ clipPath: "inset(0 0 0% 0)" }}
+      initial={reduce ? false : { opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={VIEW}
-      transition={{ duration: 1.3, delay, ease: EXPO_OUT }}
+      transition={{ duration: 0.85, delay, ease: EXPO_OUT }}
     >
       {children}
     </m.div>

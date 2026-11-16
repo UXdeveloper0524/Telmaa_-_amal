@@ -88,15 +88,17 @@ export function GoldenThread() {
     };
 
     update();
-    const observer = new ResizeObserver(update);
-    observer.observe(root);
-    document.fonts.ready.then(update);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
+    observer?.observe(root);
+    document.fonts?.ready.then(update, update);
     window.addEventListener("load", update);
+    window.addEventListener("resize", update, { passive: true });
 
     return () => {
       cancelAnimationFrame(frame);
-      observer.disconnect();
+      observer?.disconnect();
       window.removeEventListener("load", update);
+      window.removeEventListener("resize", update);
     };
   }, []);
 
@@ -114,6 +116,7 @@ export function GoldenThread() {
     Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(([{ gsap }, { ScrollTrigger }]) => {
       if (cancelled) return;
       gsap.registerPlugin(ScrollTrigger);
+      ScrollTrigger.config({ ignoreMobileResize: true });
       trigger.current = ScrollTrigger;
       const ctx = gsap.context(() => {
         gsap.fromTo(
@@ -127,6 +130,9 @@ export function GoldenThread() {
         );
       });
       revert = () => ctx.revert();
+    }).catch(() => {
+      // Keep the decoration visible if an optional animation chunk fails to load.
+      path.style.strokeDashoffset = "0";
     });
     return () => {
       cancelled = true;

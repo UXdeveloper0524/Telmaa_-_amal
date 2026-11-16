@@ -15,7 +15,7 @@ import { markLoaderDone } from "@/lib/loaderState";
 import { Monogram } from "./Monogram";
 
 /**
- * Intro loader (~3.5s, skippable, once per session).
+ * Intro loader (skippable, on every page load).
  * dot → monogram draws + counter 00→100 (one shared motion value) → soft fill + date →
  * curtains part. Only transform/opacity animate.
  */
@@ -27,6 +27,7 @@ const HOLD_AFTER_FILL_MS = 1000;
 
 export function Loader() {
   const reduce = useReducedMotion();
+  const [touch, setTouch] = useState(false);
   const [phase, setPhase] = useState<Phase>("draw");
   const progress = useMotionValue(0);
   const fill = useMotionValue(0);
@@ -40,57 +41,79 @@ export function Loader() {
     }
   });
 
+  const finish = useCallback(() => {
+    if (document.documentElement.dataset.loader !== "fallback") markLoaderDone();
+    setPhase("gone");
+  }, []);
+
   const exit = useCallback(() => {
     controls.current?.stop();
-    markLoaderDone();
-    setPhase("exit");
+    setPhase((current) => (current === "gone" ? current : "exit"));
   }, []);
 
   useEffect(() => {
-    // Already seen this session: the inline script hid the overlay, so just unmount.
-    if (document.documentElement.dataset.loader === "done") {
+    if (document.documentElement.dataset.loader !== "pending") {
       setPhase("gone");
       return;
     }
 
     const timers: number[] = [];
     let cancelled = false;
+    const touchDevice = window.matchMedia("(pointer: coarse)").matches;
+    setTouch(touchDevice);
+    const onFallback = () => {
+      if (document.documentElement.dataset.loader === "fallback") {
+        controls.current?.stop();
+        setPhase("gone");
+      }
+    };
+    window.addEventListener("loader:change", onFallback);
+    // Safari can suspend animation frames in low power mode or a background tab.
+    timers.push(window.setTimeout(exit, 6200));
+    timers.push(window.setTimeout(finish, 7500));
+    const cleanup = () => {
+      cancelled = true;
+      timers.forEach(window.clearTimeout);
+      window.removeEventListener("loader:change", onFallback);
+      controls.current?.stop();
+    };
 
     // Reduced motion: static monogram, simple fade in/out.
     if (reduce) {
       progress.set(1);
       fill.set(1);
       setPhase("fill");
-      timers.push(window.setTimeout(exit, 1800));
-      return () => timers.forEach(window.clearTimeout);
+      timers.push(window.setTimeout(exit, 600));
+      return cleanup;
     }
 
     // Wait for fonts (max 1.5s) so the counter never renders unstyled.
     const fontsReady = Promise.race([
-      document.fonts.ready,
+      document.fonts?.ready ?? Promise.resolve(),
       new Promise((resolve) => window.setTimeout(resolve, 1500)),
     ]);
 
-    fontsReady.then(() => {
+    const start = () => {
       if (cancelled) return;
-      controls.current = animate(progress, 1, {
-        duration: DRAW_SECONDS,
-        delay: DOT_SECONDS,
-        ease: CUBIC_IN_OUT,
-        onComplete: () => {
-          setPhase("fill");
-          animate(fill, 1, { duration: 0.8, ease: EXPO_OUT });
-          timers.push(window.setTimeout(exit, HOLD_AFTER_FILL_MS));
-        },
-      });
-    });
-
-    return () => {
-      cancelled = true;
-      timers.forEach(window.clearTimeout);
-      controls.current?.stop();
+      try {
+        controls.current = animate(progress, 1, {
+          duration: touchDevice ? 1.4 : DRAW_SECONDS,
+          delay: touchDevice ? 0.3 : DOT_SECONDS,
+          ease: CUBIC_IN_OUT,
+          onComplete: () => {
+            setPhase("fill");
+            animate(fill, 1, { duration: touchDevice ? 0.55 : 0.8, ease: EXPO_OUT });
+            timers.push(window.setTimeout(exit, touchDevice ? 650 : HOLD_AFTER_FILL_MS));
+          },
+        });
+      } catch {
+        exit();
+      }
     };
-  }, [reduce, progress, fill, exit]);
+    fontsReady.then(start, start);
+
+    return cleanup;
+  }, [reduce, progress, fill, exit, finish]);
 
   if (phase === "gone") return null;
 
@@ -107,17 +130,17 @@ export function Loader() {
     >
       {/* Two curtain halves: translateX only. The seam is invisible (same colour). */}
       <m.div
-        className="absolute inset-y-0 left-0 w-1/2 bg-forest"
+        className="absolute inset-y-0 left-0 w-1/2 bg-forest will-change-transform"
         initial={false}
         animate={{ x: exiting ? "-100%" : "0%" }}
-        transition={{ duration: reduce ? 0.6 : 1.1, ease: EXPO_IN_OUT }}
-        onAnimationComplete={() => exiting && setPhase("gone")}
+        transition={{ duration: reduce ? 0.4 : touch ? 0.75 : 1.1, ease: EXPO_IN_OUT }}
+        onAnimationComplete={() => exiting && finish()}
       />
       <m.div
-        className="absolute inset-y-0 right-0 w-1/2 bg-forest"
+        className="absolute inset-y-0 right-0 w-1/2 bg-forest will-change-transform"
         initial={false}
         animate={{ x: exiting ? "100%" : "0%" }}
-        transition={{ duration: reduce ? 0.6 : 1.1, ease: EXPO_IN_OUT }}
+        transition={{ duration: reduce ? 0.4 : touch ? 0.75 : 1.1, ease: EXPO_IN_OUT }}
       />
 
       {/* Centre stage: fades quickly as the curtains begin to part. */}

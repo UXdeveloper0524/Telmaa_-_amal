@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { m, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { wedding } from "@/config/wedding";
+import { useDesktopMotion } from "@/lib/pointer";
 import { Countdown } from "./Countdown";
 import { FadeUp, MaskLine } from "./Reveal";
 import { Specks } from "./Specks";
@@ -24,6 +25,7 @@ function GuestGreeting() {
 
 export function Hero() {
   const reduce = useReducedMotion();
+  const desktop = useDesktopMotion();
   const archRef = useRef<HTMLDivElement>(null);
   const img = wedding.images.hero;
 
@@ -87,7 +89,7 @@ export function Hero() {
               ref={archRef}
               className="relative aspect-[3/4] overflow-hidden rounded-t-[999px] bg-stone/20"
             >
-              <m.div className="h-full w-full" style={{ y: reduce ? 0 : y, scale: 1.1 }}>
+              <m.div className="h-full w-full" style={{ y: reduce || !desktop ? 0 : y, scale: 1.1 }}>
                 <Image
                   src={img.src}
                   width={img.width}

@@ -38,7 +38,6 @@ export const wedding = {
   loader: {
     label: "Preparing your invitation",
     skip: "Skip",
-    sessionKey: "amal-telma:intro-seen",
   },
 
   // ── Hero ────────────────────────────────────────────────────────────

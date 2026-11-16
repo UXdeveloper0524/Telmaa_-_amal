@@ -61,10 +61,8 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-/** Runs before first paint: decides whether the intro loader should play this session. */
-const loaderGate = `try{document.documentElement.dataset.loader=sessionStorage.getItem(${JSON.stringify(
-  wedding.loader.sessionKey,
-)})?"done":"pending"}catch(e){document.documentElement.dataset.loader="done"}`;
+/** Start the intro on every load; release the page even if hydration or animation stalls. */
+const loaderGate = `document.documentElement.dataset.loader="pending";setTimeout(function(){if(document.documentElement.dataset.loader==="pending"){document.documentElement.dataset.loader="fallback";window.dispatchEvent(new Event("loader:change"))}},8000)`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

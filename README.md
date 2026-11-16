@@ -103,8 +103,8 @@ are the only other places to touch (`Monogram.tsx`, `app/page.tsx` JSON-LD start
 
 ## Notes
 
-- Loader plays once per session (`sessionStorage`); an inline script in `<head>` decides before first paint, so returning visitors never see a flash.
-  With reduced motion: static monogram + fade, no Lenis, thread fully drawn, reveals disabled, no specks/cursor/magnetic.
+- Loader plays on every page load. A timeout releases the page if hydration or animation stalls.
+  With reduced motion: static monogram + fade, no Lenis, thread fully drawn, reveals disabled, no specks/cursor/magnetic. Touch devices use native scrolling.
 - Specks are skipped on reduced motion, ≤4 CPU cores, ≤2 GB memory or Save-Data.
 - Measured locally (production build, mobile preset): Lighthouse Performance 95, Accessibility 100, Best Practices 96, SEO 100; CLS 0; first-load JS 149 kB.
   Run it again on your deployed URL with real fonts and images.

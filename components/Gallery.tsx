@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import { m, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { wedding } from "@/config/wedding";
+import { useDesktopMotion } from "@/lib/pointer";
 import { ClipIn } from "./ScrollReveal";
 
 const { images } = wedding;
@@ -44,6 +45,7 @@ export function GalleryStrip() {
 /** Full-bleed dark band between sections, with a gentle parallax on the photo. */
 export function DarkBand() {
   const reduce = useReducedMotion();
+  const desktop = useDesktopMotion();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
@@ -51,7 +53,7 @@ export function DarkBand() {
 
   return (
     <div ref={ref} data-band className="relative h-[85svh] min-h-[28rem] overflow-hidden bg-forest">
-      <m.div className="absolute inset-0" style={{ y: reduce ? 0 : y, scale: 1.14 }}>
+      <m.div className="absolute inset-0" style={{ y: reduce || !desktop ? 0 : y, scale: 1.14 }}>
         <Image
           src={photo.src}
           width={photo.width}

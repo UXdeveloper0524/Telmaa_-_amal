@@ -7,8 +7,12 @@ const QUERY = "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: n
 
 function subscribe(onChange: () => void) {
   const mq = window.matchMedia(QUERY);
-  mq.addEventListener("change", onChange);
-  return () => mq.removeEventListener("change", onChange);
+  if (mq.addEventListener) {
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }
+  mq.addListener(onChange);
+  return () => mq.removeListener(onChange);
 }
 
 export function useDesktopMotion(): boolean {

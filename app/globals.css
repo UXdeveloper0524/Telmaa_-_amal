@@ -36,6 +36,21 @@
     display: none;
   }
 
+  /* If hydration or animation stalls, release scrolling and show every reveal. */
+  html[data-loader="fallback"] {
+    overflow: auto;
+  }
+  html[data-loader="fallback"] .loader-root {
+    display: none;
+  }
+  html[data-loader="fallback"] .mask-inner,
+  html[data-loader="fallback"] .fade-up,
+  html[data-loader="fallback"] .clip-in {
+    transform: none !important;
+    opacity: 1 !important;
+    clip-path: none !important;
+  }
+
   /* Lenis (recommended base styles). */
   html.lenis,
   html.lenis body {
@@ -135,7 +150,8 @@ html.has-cursor textarea {
     opacity: 1 !important;
   }
   .clip-in {
-    clip-path: none !important;
+    transform: none !important;
+    opacity: 1 !important;
   }
   .sprig path {
     stroke-dasharray: none !important;

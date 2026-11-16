@@ -1,30 +1,24 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { wedding } from "@/config/wedding";
 
 const EVENT = "loader:change";
 
-/** The inline script in layout.tsx sets html[data-loader] to "pending" or "done" before first paint. */
-const read = () => document.documentElement.dataset.loader === "done";
+/** The inline script in layout.tsx starts the loader before first paint. */
+const read = () => ["done", "fallback"].includes(document.documentElement.dataset.loader ?? "");
 
 function subscribe(onChange: () => void) {
   window.addEventListener(EVENT, onChange);
   return () => window.removeEventListener(EVENT, onChange);
 }
 
-/** True once the intro loader has finished (or was skipped / already seen this session). */
+/** True once the intro loader has finished or the safety fallback has released the page. */
 export function useLoaderDone(): boolean {
   return useSyncExternalStore(subscribe, read, () => false);
 }
 
-/** Called when the curtains start to part: unlocks scroll and lets the hero reveal begin. */
+/** Called after the curtains part: unlocks scroll and starts the hero reveal. */
 export function markLoaderDone() {
   document.documentElement.dataset.loader = "done";
-  try {
-    sessionStorage.setItem(wedding.loader.sessionKey, "1");
-  } catch {
-    /* storage unavailable (private mode): the loader simply replays next visit */
-  }
   window.dispatchEvent(new Event(EVENT));
 }
