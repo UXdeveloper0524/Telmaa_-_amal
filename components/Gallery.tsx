@@ -50,7 +50,7 @@ export function DarkBand() {
   const photo = images.story3;
 
   return (
-    <div ref={ref} data-band className="relative h-[85svh] min-h-[28rem] overflow-hidden bg-forest">
+    <div ref={ref} data-band className="relative h-[85svh] min-h-[28rem] overflow-hidden bg-forest xl:[@media(pointer:fine)]:h-[100svh]">
       <m.div className="absolute inset-0" style={{ y: reduce ? 0 : y, scale: 1.14 }}>
         <Image
           src={photo.src}
@@ -60,7 +60,7 @@ export function DarkBand() {
           placeholder="blur"
           blurDataURL={images.blur}
           sizes="100vw"
-          className="h-full w-full object-cover object-[50%_35%]"
+          className="h-full w-full object-cover object-[50%_35%] xl:[@media(pointer:fine)]:object-[50%_14%]"
         />
       </m.div>
       {/* Flat forest tint (no gradient) so the thread and any caption stay legible. */}
