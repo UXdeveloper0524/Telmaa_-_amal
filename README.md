@@ -39,7 +39,7 @@ npm run build && npm start
 
 1. Replace the placeholder files in `public/images/` with the real photos, same names and sizes
    (hero 1600×2133, couple 900×1125, story 1400×1867 / 1400×2489, og-cover 1200×630). Update the `alt` text in `config/wedding.ts`.
-2. Set `rsvp.whatsappNumber` in `config/wedding.ts` (digits only, with country code). It is currently `910000000000`.
+2. Confirm `rsvp.whatsappNumber` in `config/wedding.ts` (digits only, with country code) before sharing the invitation.
 3. Optional: generate a tiny blur per photo and swap `images.blur` (one shared paper-tone blur is used now).
 4. Optional audio: put an mp3 in `public/audio/` and set `audio.src`. The toggle stays hidden while `src` is empty.
 

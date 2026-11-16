@@ -128,7 +128,7 @@ export const wedding = {
     heading: "RSVP",
     sub: "Kindly confirm your attendance",
     /** Family WhatsApp number, digits only with country code. REPLACE BEFORE LAUNCH. */
-    whatsappNumber: "910000000000",
+    whatsappNumber: "916238262977",
     submit: "Share Reply",
     /** One question per screen. `kind` drives the input type in RsvpFlow. */
     questions: {
