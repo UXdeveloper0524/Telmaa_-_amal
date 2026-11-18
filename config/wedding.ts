@@ -57,7 +57,7 @@ export const wedding = {
     heading: "Together",
     amal: {
       name: "Amal",
-      line: "Son of Late Mr. Purushothaman & Mrs. Sindhu Kanghat",
+      line: "Son of Late Mr. Purushothaman & Mrs. Sindhu K",
     },
     telma: {
       name: "Telma",
@@ -75,7 +75,7 @@ export const wedding = {
     groom: {
       name: "AMAL",
       sonOf: "Son of",
-      parents: "Late Mr. Purushothaman & Mrs. Sindhu Kanghat",
+      parents: "Late Mr. Purushothaman & Mrs. Sindhu K",
       siblings: "Beloved brother of Amrutha, brother-in-law of Joseph and uncle of Daivik.",
     },
     bride: {
@@ -117,7 +117,7 @@ export const wedding = {
     heading: "Family & Blessings",
     body: "Your presence and good wishes will make this celebration even more memorable as two families come together for this special occasion.",
     regards: "With warm regards,",
-    families: ["Mrs. Sindhu Kanghat & Family", "Mr. P. C. Joseph, Mrs. Lizy Joseph & Family"],
+    families: ["Mrs. Sindhu K & Family", "Mr. P. C. Joseph, Mrs. Lizy Joseph & Family"],
   },
 
   // ── 06 RSVP ─────────────────────────────────────────────────────────
