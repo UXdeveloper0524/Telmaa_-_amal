@@ -70,6 +70,7 @@ export function Hero() {
 
           <FadeUp delay={0.9}>
             <p className="mt-10 font-display text-2xl font-light md:text-3xl">{wedding.event.dateLine}</p>
+            <p className="mt-3 font-display text-xl italic text-ink/80 md:text-2xl">{wedding.event.muhurtham}</p>
             <span aria-hidden className="mt-6 block h-px w-24 bg-gold" />
             <p className="mt-6 max-w-md font-display text-lg italic leading-snug text-ink/80 md:text-xl">
               {wedding.hero.tagline}

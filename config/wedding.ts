@@ -169,12 +169,12 @@ export const wedding = {
   // ── Images (files live in /public/images) ───────────────────────────
   images: {
     hero: {
-      src: "/images/hero-couple.webp",
-      width: 1600,
-      height: 2133,
-      alt: "Amal and Telma together on the temple steps",
+      src: "/images/hero-watercolor.webp",
+      width: 1024,
+      height: 1536,
+      alt: "Watercolor portrait of Amal and Telma together",
     },
-    amal: { src: "/images/couple-amal.webp", width: 900, height: 1125, alt: "Portrait of Amal" },
+    amal: { src: "/images/groom-portrait.webp", width: 1200, height: 1800, alt: "Portrait of Amal" },
     telma: { src: "/images/couple-telma.webp", width: 900, height: 1125, alt: "Portrait of Telma" },
     story1: {
       src: "/images/story-01.webp",
@@ -183,10 +183,10 @@ export const wedding = {
       alt: "Amal and Telma sharing a quiet moment",
     },
     story2: {
-      src: "/images/story-02.webp",
+      src: "/images/story-golden-hour.webp",
       width: 1400,
-      height: 1867,
-      alt: "Amal and Telma laughing together outdoors",
+      height: 2100,
+      alt: "Amal and Telma laughing together in the golden-hour light",
     },
     story3: {
       src: "/images/story-03.webp",
