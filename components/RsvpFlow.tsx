@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { wedding } from "@/config/wedding";
 import { EXPO_OUT } from "@/lib/motion";
-import { buildWhatsAppUrl, rsvpSchema, type RsvpInput } from "@/lib/rsvp";
+import { buildWhatsAppUrl, rsvpSchema, rsvpStepSchema, type RsvpInput } from "@/lib/rsvp";
 import { Button } from "./Button";
 import { SectionHeading } from "./SectionHeading";
 import { ThreadKnot } from "./ThreadKnot";
@@ -14,11 +14,11 @@ import { ThreadKnot } from "./ThreadKnot";
  * A small gold thread fills as the guest progresses. On submit WhatsApp opens with the reply
  * pre-written, the reply is optionally POSTed to /api/rsvp, and the thread ties into a knot.
  */
-const FIELDS = ["name", "phone", "attendance", "message"] as const;
+const FIELDS = ["name", "attendance", "persons"] as const;
 type Field = (typeof FIELDS)[number];
-type Draft = { name: string; phone: string; attendance: "accept" | "decline" | ""; message: string };
+type Draft = { name: string; attendance: "accept" | "decline" | ""; persons: string };
 
-const EMPTY: Draft = { name: "", phone: "", attendance: "", message: "" };
+const EMPTY: Draft = { name: "", attendance: "", persons: "" };
 const INPUT =
   "block w-full border-0 border-b border-gold bg-transparent py-3 font-display text-3xl font-light text-ink placeholder:text-ink/40 focus:border-ink md:text-5xl";
 
@@ -36,10 +36,11 @@ export function RsvpFlow() {
   // Widened on purpose: the config literal differs per field, the form treats them uniformly.
   const q: { prompt: string; placeholder?: string; hint?: string; required: boolean; accept?: string; decline?: string } =
     rsvp.questions[field];
-  const last = step === FIELDS.length - 1;
+  const last = field === "persons" || (field === "attendance" && draft.attendance === "decline");
+  const total = draft.attendance === "decline" ? 2 : FIELDS.length;
 
   useEffect(() => {
-    if (started.current) panel.current?.querySelector<HTMLElement>("input, textarea")?.focus({ preventScroll: true });
+    if (started.current) panel.current?.querySelector<HTMLElement>("input")?.focus({ preventScroll: true });
   }, [step]);
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) => {
@@ -48,7 +49,7 @@ export function RsvpFlow() {
   };
 
   function submit() {
-    const parsed = rsvpSchema.safeParse(draft);
+    const parsed = rsvpSchema.safeParse({ ...draft, persons: draft.attendance === "decline" ? 0 : draft.persons });
     if (!parsed.success) {
       setError(parsed.error.issues[0].message);
       return;
@@ -69,7 +70,7 @@ export function RsvpFlow() {
 
   function next(e: React.FormEvent) {
     e.preventDefault();
-    const result = rsvpSchema.shape[field].safeParse(draft[field]);
+    const result = rsvpStepSchema[field].safeParse(draft[field]);
     if (!result.success) {
       setError(result.error.issues[0].message);
       return;
@@ -85,7 +86,7 @@ export function RsvpFlow() {
     setStep(step - 1);
   };
 
-  const progress = sent ? 1 : step / FIELDS.length;
+  const progress = sent ? 1 : step / total;
 
   return (
     <section id="rsvp" className="px-6 py-24 md:px-12 md:py-36" aria-labelledby="rsvp-h">
@@ -117,7 +118,7 @@ export function RsvpFlow() {
               {/* The thread fills as the guest moves through the questions (transform-free: pathLength). */}
               <div className="flex items-center gap-4">
                 <span className="label tabular text-ink/70">
-                  {step + 1} / {FIELDS.length}
+                  {step + 1} / {total}
                 </span>
                 <svg viewBox="0 0 360 12" preserveAspectRatio="none" className="h-3 flex-1" aria-hidden fill="none">
                   <path
@@ -139,7 +140,7 @@ export function RsvpFlow() {
 
               {/* Screen-reader announcements for step changes and validation. */}
               <p className="sr-only" role="status" aria-live="polite">
-                Question {step + 1} of {FIELDS.length}: {q.prompt}
+                Question {step + 1} of {total}: {q.prompt}
               </p>
 
               <AnimatePresence mode="wait" initial={false}>
@@ -182,36 +183,21 @@ export function RsvpFlow() {
                         {q.required && <span aria-hidden> *</span>}
                         {q.hint && <span className="label ml-3 text-ink/70">{q.hint}</span>}
                       </label>
-                      {field === "message" ? (
-                        <textarea
-                          id="rsvp-message"
-                          rows={3}
-                          value={draft.message}
-                          placeholder={q.placeholder}
-                          onChange={(e) => set("message", e.target.value)}
-                          onKeyDown={(e) => {
-                            // Enter adds a line here; Ctrl/⌘ + Enter sends.
-                            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) next(e);
-                          }}
-                          aria-invalid={Boolean(error)}
-                          aria-describedby={error ? "rsvp-error" : undefined}
-                          className={`${INPUT} mt-4 resize-none`}
-                        />
-                      ) : (
-                        <input
-                          id={`rsvp-${field}`}
-                          type={field === "phone" ? "tel" : "text"}
-                          inputMode={field === "phone" ? "tel" : "text"}
-                          autoComplete={field === "phone" ? "tel" : "name"}
-                          value={draft[field]}
-                          placeholder={q.placeholder}
-                          onChange={(e) => set(field, e.target.value)}
-                          aria-required="true"
-                          aria-invalid={Boolean(error)}
-                          aria-describedby={error ? "rsvp-error" : undefined}
-                          className={`${INPUT} mt-4`}
-                        />
-                      )}
+                      <input
+                        id={`rsvp-${field}`}
+                        type={field === "persons" ? "number" : "text"}
+                        inputMode={field === "persons" ? "numeric" : "text"}
+                        min={field === "persons" ? 1 : undefined}
+                        step={field === "persons" ? 1 : undefined}
+                        autoComplete={field === "name" ? "name" : "off"}
+                        value={draft[field]}
+                        placeholder={q.placeholder}
+                        onChange={(e) => set(field, e.target.value)}
+                        aria-required="true"
+                        aria-invalid={Boolean(error)}
+                        aria-describedby={error ? "rsvp-error" : undefined}
+                        className={`${INPUT} mt-4`}
+                      />
                     </>
                   )}
 

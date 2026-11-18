@@ -53,7 +53,7 @@ and stores via the adapter named in `RSVP_ADAPTER` (unset = nothing stored, What
    ```js
    function doPost(e) {
      const d = JSON.parse(e.postData.contents);
-     SpreadsheetApp.getActiveSheet().appendRow([d.submittedAt, d.name, d.phone, d.attendance, d.message]);
+     SpreadsheetApp.getActiveSheet().appendRow([d.submittedAt, d.name, d.attendance, d.persons]);
      return ContentService.createTextOutput('ok');
    }
    ```
@@ -63,12 +63,13 @@ and stores via the adapter named in `RSVP_ADAPTER` (unset = nothing stored, What
 ```sql
 create table rsvps (
   id bigint generated always as identity primary key,
-  name text not null, phone text not null,
+  name text not null, persons integer not null check (persons >= 0),
   attendance text not null check (attendance in ('accept','decline')),
-  message text not null default '', submitted_at timestamptz not null
+  submitted_at timestamptz not null
 );
 alter table rsvps enable row level security;  -- no policies: only the service-role key can write
 ```
+For an existing `rsvps` table created with the old form, add a `persons` integer column and allow the old `phone` column to be null before enabling the Supabase adapter for this form.
 Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (server only).
 
 **Another backend:** implement `RsvpAdapter` in `lib/rsvp-adapters.ts` and add it to `adapters`.

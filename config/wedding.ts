@@ -129,17 +129,16 @@ export const wedding = {
     /** Family WhatsApp number, digits only with country code. REPLACE BEFORE LAUNCH. */
     whatsappNumber: "916238262977",
     submit: "Share Reply",
-    /** One question per screen. `kind` drives the input type in RsvpFlow. */
+    /** One question per screen; the person count is asked only for accepted replies. */
     questions: {
       name: { prompt: "Your name", placeholder: "Full name", required: true },
-      phone: { prompt: "Mobile number", placeholder: "+91 98765 43210", hint: "With country code", required: true },
       attendance: {
         prompt: "Will you join us?",
         accept: "Joyfully Accept",
         decline: "Regretfully Decline",
         required: true,
       },
-      message: { prompt: "A message for us", placeholder: "Optional", hint: "Optional", required: false },
+      persons: { prompt: "Number of persons", placeholder: "1", hint: "Including you", required: true },
     },
     next: "Continue",
     back: "Back",

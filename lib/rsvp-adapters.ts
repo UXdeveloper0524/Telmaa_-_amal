@@ -30,7 +30,7 @@ const sheets: RsvpAdapter = {
 
 /** Supabase REST insert into a table named `rsvps` (SQL in README). Uses the service-role key: server only. */
 const supabase: RsvpAdapter = {
-  async save({ name, phone, attendance, message, submittedAt }) {
+  async save({ name, persons, attendance, submittedAt }) {
     const key = env("SUPABASE_SERVICE_ROLE_KEY");
     const res = await fetch(`${env("SUPABASE_URL")}/rest/v1/rsvps`, {
       method: "POST",
@@ -40,7 +40,7 @@ const supabase: RsvpAdapter = {
         "Content-Type": "application/json",
         Prefer: "return=minimal",
       },
-      body: JSON.stringify({ name, phone, attendance, message, submitted_at: submittedAt }),
+      body: JSON.stringify({ name, persons, attendance, submitted_at: submittedAt }),
     });
     if (!res.ok) throw new Error(`Supabase responded ${res.status}`);
   },
