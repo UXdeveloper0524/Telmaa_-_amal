@@ -126,8 +126,8 @@ export const wedding = {
     label: "We hope to see you",
     heading: "RSVP",
     sub: "Kindly confirm your attendance",
-    /** Family WhatsApp number, digits only with country code. REPLACE BEFORE LAUNCH. */
-    whatsappNumber: "916238262977",
+    /** Family WhatsApp number, digits only with country code. */
+    whatsappNumber: "919288022094",
     submit: "Share Reply",
     /** One question per screen; the person count is asked only for accepted replies. */
     questions: {
