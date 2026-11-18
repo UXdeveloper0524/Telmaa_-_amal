@@ -174,7 +174,7 @@ export const wedding = {
       alt: "Watercolor portrait of Amal and Telma together",
     },
     amal: { src: "/images/groom-portrait.webp", width: 1200, height: 1800, alt: "Portrait of Amal" },
-    telma: { src: "/images/couple-telma.webp", width: 900, height: 1125, alt: "Portrait of Telma" },
+    telma: { src: "/images/bride-green-saree.webp", width: 1200, height: 1800, alt: "Telma smiling in a green saree" },
     story1: {
       src: "/images/story-01.webp",
       width: 1400,
